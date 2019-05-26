@@ -1,13 +1,19 @@
 # Introduction
 This is a tool kit for data science project, using demo data from Kaggle. This tool kit can automatically analyze the column type in a dataset, perform cleansing and one-hot encoding accordingly. It also performs training and evalaution of basic machine learning models, such as decision tree and random forest; and produce ROC curve and visialization on the prediction performance.
+
 This is useful for quick pre-processing and analysis of a dataset. It's useful for real world business project, when there are a large number of columns in a dataset. The visualization also helps to spot columns with data leakage problem. This tool was inspired when doing real world business project and using some expensive commerical data processing tool. 
 
 # Structure
 `Visualize.ipynb`: Visualizing a dataset
+
 `Analyze.ipynb`: Train and evaluate ML models on dataset
+
 `cleanser.py`: Automated data pre-processing and cleansing functions
+
 `analyzer.py`: ML models evaluating functions
+
 `requirements.txt`: Python package dependency and versions
+
 `README.md`: This file
 
 # Dependency
