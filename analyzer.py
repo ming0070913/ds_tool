@@ -234,3 +234,22 @@ def pivot_count(df, index, columns):
     
     print('Percentage:')
     display(pivot.div(pivot.iloc[:].sum(), axis=1).round(3)*100.0)
+
+def find_na(df):
+    any_na = False
+    na = set()
+    cols = []
+    
+    for k in df.columns:
+        idx = df[df[k].isna()].index
+        if len(idx) > 0:
+            cols.append(k)
+        na = na.union(idx)
+        
+    
+    if len(na) == 0:
+        print('No NaN cell found')
+    else:
+        print(df.loc[list(na)][cols])
+    
+    return na, cols
