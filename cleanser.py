@@ -12,6 +12,10 @@ import matplotlib
 from IPython.core.display import display, HTML
 
 def clean_data(_df, settings, logging=True):
+    '''
+    Clean the data according to the feature settings
+    '''
+    
     def log(msg):
         if logging:
             print(msg)
@@ -102,6 +106,10 @@ def clean_data(_df, settings, logging=True):
     return df
 
 def drop_timestamp(_df, settings, logging=True):
+    '''
+    Drop timestamp features according to settings
+    '''
+    
     def log(msg):
         if logging:
             print(msg)
@@ -125,6 +133,10 @@ def drop_timestamp(_df, settings, logging=True):
     return df
 
 def one_hot(_df, settings, logging=True):
+    '''
+    Do one-hot encoding on class features according to settings
+    '''
+    
     def log(msg):
         if logging:
             print(msg)
@@ -153,6 +165,10 @@ def one_hot(_df, settings, logging=True):
     return df
 
 def info(df):
+    '''
+    Show DataFrame statistics
+    '''
+    
     if not display:
         return
     display(df.head())
@@ -160,6 +176,10 @@ def info(df):
     display(df.describe())
 
 def analyze(df):
+    '''
+    Analyze a DataFrame of data
+    '''
+    
     count_records = df.shape[0]
     count_nan_col = df.isnull().sum(axis = 0)
     
@@ -274,6 +294,10 @@ def analyze(df):
             # print(df[col][1])
 
 def compare(df1, df2, full=True):
+    '''
+    Compare two DataFrames
+    '''
+    
     def b(t, bold = False):
         if type(t) == np.float64:
             t = "{:0.1f}".format(t)
