@@ -22,6 +22,9 @@ def gain_lift_curve(y_test, y_score):
     Get gain lift curve data
     '''
     
+    if type(y_test) == pd.core.frame.DataFrame:
+        y_test = y_test.copy()[y_test.columns[0]]
+    
     s_score, s_test = zip(*sorted(zip(y_score, y_test), reverse=True))
     
     gain = []
