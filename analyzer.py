@@ -68,6 +68,10 @@ def evaluate(y_test, y_score, threshold = 0.50, gain_lift = False):
     
     # Style
     sns.set_style("whitegrid")
+    sns.set(font='SimHei')
+    matplotlib.rcParams['font.sans-serif'] = ['SimHei'] 
+    matplotlib.rcParams['font.family'] ='sans-serif'
+    
     every_10 = np.arange(0, 1.1, 0.1)
     
     if gain_lift:
@@ -130,6 +134,9 @@ def plot_corr(df):
     '''
     
     sns.set(style="white")
+    sns.set(font='SimHei')
+    matplotlib.rcParams['font.sans-serif'] = ['SimHei'] 
+    matplotlib.rcParams['font.family'] ='sans-serif'
 
     # Compute the correlation matrix
     corr = df.corr()
@@ -284,7 +291,10 @@ def confusion_matrix(y_test, y_score, threshold=0.50):
     
     results = []
     
-    classes = y_test.unique()
+    if type(y_test) == pd.core.frame.DataFrame:
+        classes = y_test.iloc[:, 0].unique()
+    else:
+        classes = y_test.unique()
     classes_count = len(classes)
     
     if classes_count == 2: # binary classification
@@ -293,8 +303,10 @@ def confusion_matrix(y_test, y_score, threshold=0.50):
         
         results = [
             ['', 'Pred. Positive', 'Pred. Negative'],
-            ['Positive', cm[0][0], cm[0][1] ],
-            ['Negative', cm[1][0], cm[1][1] ],
+            ['Positive', '{} ({:.1f})'.format(cm[0][0], cm[0][0]/(cm[0][0]+cm[0][1])*100),
+                         '{} ({:.1f})'.format(cm[0][0], cm[0][1]/(cm[0][0]+cm[0][1])*100) ],
+            ['Negative', '{} ({:.1f})'.format(cm[1][0], cm[1][0]/(cm[1][0]+cm[1][1])*100),
+                         '{} ({:.1f})'.format(cm[1][0], cm[1][1]/(cm[1][0]+cm[1][1])*100) ],
         ]
         
     else: # multiple class
