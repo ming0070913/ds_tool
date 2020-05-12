@@ -18,13 +18,6 @@ import pydotplus
 from IPython.core.display import display, HTML
 
 def gain_lift_curve(y_test, y_score):
-    '''
-    Get gain lift curve data
-    '''
-    
-    if type(y_test) == pd.core.frame.DataFrame:
-        y_test = y_test.copy()[y_test.columns[0]]
-    
     s_score, s_test = zip(*sorted(zip(y_score, y_test), reverse=True))
     
     gain = []
@@ -59,19 +52,11 @@ def gain_lift_curve(y_test, y_score):
     return gain, lift, cutoff, perc
 
 def evaluate(y_test, y_score, threshold = 0.50, gain_lift = False):
-    '''
-    Evaluate a model
-    '''
-    
     print('Accuracy: {}'.format(accuracy_score(y_test, (y_score>threshold).astype(int))))
     print('RMSE: {}'.format(mean_squared_error(y_test, y_score)))
     
     # Style
     sns.set_style("whitegrid")
-    sns.set(font='SimHei')
-    matplotlib.rcParams['font.sans-serif'] = ['SimHei'] 
-    matplotlib.rcParams['font.family'] ='sans-serif'
-    
     every_10 = np.arange(0, 1.1, 0.1)
     
     if gain_lift:
@@ -79,6 +64,7 @@ def evaluate(y_test, y_score, threshold = 0.50, gain_lift = False):
         gain, lift, cutoff, percentage = gain_lift_curve(y_test, y_score)
 
         ###### Cut Off Curve ######
+        # Percentage of instances selected at different cut-off value
         plt.title('CutOff Response')
         plt.plot(percentage, cutoff, 'dodgerblue')
         plt.xlim([0, 1])
@@ -89,6 +75,7 @@ def evaluate(y_test, y_score, threshold = 0.50, gain_lift = False):
         plt.show()
 
         ###### Lift Curve ######
+        # Increase of response than random sampling, if only certain percentage of instance is selected
         plt.title('Lift Curve')
         plt.plot([0, 1], [lift[-1], lift[-1]], '--', color='lightpink')
         plt.plot(percentage, lift, 'dodgerblue')
@@ -100,6 +87,7 @@ def evaluate(y_test, y_score, threshold = 0.50, gain_lift = False):
         plt.show()
 
         ###### Gain Curve ######
+        # Percentage of positive instances captured, if only certain percentage of instance is selected
         plt.title('Gain Curve')
         plt.plot([0, 1], [0, 1], '--', color='lightpink')
         plt.plot(percentage, gain, 'dodgerblue')
@@ -112,7 +100,7 @@ def evaluate(y_test, y_score, threshold = 0.50, gain_lift = False):
         plt.xlabel('Percentage of Instances')
         plt.show()
     
-    ###### ROC Curve ######
+    ###### Receiver Operating Characteristic (ROC) Curve ######
     fpr, tpr, _ = roc_curve(y_test, y_score)
     roc_auc = auc(fpr, tpr)
 
@@ -129,14 +117,7 @@ def evaluate(y_test, y_score, threshold = 0.50, gain_lift = False):
     plt.show()
 
 def plot_corr(df):
-    '''
-    Plot correlation
-    '''
-    
     sns.set(style="white")
-    sns.set(font='SimHei')
-    matplotlib.rcParams['font.sans-serif'] = ['SimHei'] 
-    matplotlib.rcParams['font.family'] ='sans-serif'
 
     # Compute the correlation matrix
     corr = df.corr()
@@ -156,10 +137,6 @@ def plot_corr(df):
                 square=True, linewidths=.5, cbar_kws={"shrink": .5})
 
 def plot_dist(df):
-    '''
-    Plot distribution
-    '''
-    
     def y_fmt(y, pos):
         decades = [1e9, 1e6, 1e3, 1e0, 1e-3, 1e-6, 1e-9 ]
         suffix  = ["G", "M", "K", "" , "m" , "u", "n"  ]
@@ -223,11 +200,7 @@ def plot_dist(df):
     plt.tight_layout()
     plt.show()
 
-def evaluate_importance(X, classifier, topN=20, plot=True):
-    '''
-    Plot graph to evaluate feature importance
-    '''
-    
+def evaluate_importance(X, classifier, topN = 20):
     col_imp = zip(X.columns, classifier.feature_importances_)
     col_imp = sorted(col_imp, key=lambda x: -x[1])
     cols, imp = zip(*col_imp)
@@ -235,16 +208,9 @@ def evaluate_importance(X, classifier, topN=20, plot=True):
     if hasattr(classifier, 'estimators_'):
         std = np.std([tree.feature_importances_ for tree in classifier.estimators_], axis=0)
     
-    if not plot:
-        return list(zip(cols, imp))[:topN]
-    
     sns.barplot(list(imp)[:topN], list(cols)[:topN], orient='h')
 
 def viz_tree(X, classifier, filename='dtree_pipe.png', percentage=True):
-    '''
-    Visualize a decision tree
-    '''
-    
     dot_data = StringIO()
     export_graphviz(classifier, out_file=dot_data,  
                     filled=True, rounded=True,
@@ -271,72 +237,3 @@ def pivot_count(df, index, columns):
     
     print('Percentage:')
     display(pivot.div(pivot.iloc[:].sum(), axis=1).round(3)*100.0)
-
-def print_table(data):
-    '''
-    Helper function to print a table in jupyter
-    '''
-    
-    display(HTML(
-       '<table><tr>{}</tr></table>'.format(
-           '</tr><tr>'.join(
-               '<td>{}</td>'.format('</td><td>'.join(str(_) for _ in row)) for row in data)
-           )
-    ))
-
-def confusion_matrix(y_test, y_score, threshold=0.50):
-    '''
-    Plot a confusion matrix table for classification
-    '''
-    
-    results = []
-    
-    if type(y_test) == pd.core.frame.DataFrame:
-        classes = y_test.iloc[:, 0].unique()
-    else:
-        classes = y_test.unique()
-    classes_count = len(classes)
-    
-    if classes_count == 2: # binary classification
-        y_pred = (y_score > threshold).astype(int)
-        cm = metrics.confusion_matrix(y_test, y_pred, labels=[1,0])
-        
-        results = [
-            ['', 'Pred. Positive', 'Pred. Negative'],
-            ['Positive', '{} ({:.1f})'.format(cm[0][0], cm[0][0]/(cm[0][0]+cm[0][1])*100),
-                         '{} ({:.1f})'.format(cm[0][0], cm[0][1]/(cm[0][0]+cm[0][1])*100) ],
-            ['Negative', '{} ({:.1f})'.format(cm[1][0], cm[1][0]/(cm[1][0]+cm[1][1])*100),
-                         '{} ({:.1f})'.format(cm[1][0], cm[1][1]/(cm[1][0]+cm[1][1])*100) ],
-        ]
-        
-    else: # multiple class
-        y_pred = (y_score > threshold).astype(int)
-        cm = metrics.confusion_matrix(y_test, y_pred)
-        
-        results[0] = ['']
-        for i in range(classes_count):
-            results[0].append('Pred. Class {}'.format(i+1))
-        
-        for i in range(classes_count):
-            results.append(['Class {}'.format(i+1)] + cm[i])
-    
-    print_table(results)
-
-def find_na(df):
-    any_na = False
-    na = set()
-    cols = []
-    
-    for k in df.columns:
-        idx = df[df[k].isna()].index
-        if len(idx) > 0:
-            cols.append(k)
-        na = na.union(idx)
-        
-    
-    if len(na) == 0:
-        print('No NaN cell found')
-    else:
-        print(df.loc[list(na)][cols])
-    
-    return na, cols
